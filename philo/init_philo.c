@@ -1,25 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init_philo.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: czang <marvin@42.fr>                       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/08/07 12:56:49 by czang             #+#    #+#             */
+/*   Updated: 2022/08/07 19:53:42 by czang            ###   ########lyon.fr   */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
-
-static int	ft_atoi(const char *str)
-{
-	long int	n;
-
-	n = 0;
-	if (*str == '-')
-		return (-1);
-	if (*str == '+')
-		str++;
-	while (*str >= '0' && *str <= '9')
-	{
-		n = n * 10 + *str - '0';
-		if (n > INT_MAX)
-			return (-1);
-		str++;
-	}
-	if (*str != '\0')
-		return (-1);
-	return ((int)n);
-}
 
 static int	init_data(t_data **data, int argc, char **argv)
 {
@@ -33,7 +24,7 @@ static int	init_data(t_data **data, int argc, char **argv)
 	tmp->t_die = ft_atoi(argv[2]);
 	tmp->t_eat = ft_atoi(argv[3]);
 	tmp->t_sleep = ft_atoi(argv[4]);
-	if (tmp->num_philos < 1 || tmp->num_philos > 50 || tmp->t_die == -1 || \
+	if (tmp->num_philos < 1 || tmp->num_philos > 200 || tmp->t_die == -1 || \
 		tmp->t_eat == -1 || tmp->t_sleep == -1)
 		return (ft_error("Error: Wrong arguments"));
 	tmp->num_eat = -1;
@@ -72,16 +63,11 @@ static void	init_philo(t_philo *philo, int i, \
 	philo->num_eat_count = 0;
 	philo->t_meal = 0;
 	philo->data = data;
+	philo->rf = forks + i;
 	if (i == 0)
-	{
 		philo->lf = forks + data->num_philos - 1;
-		philo->rf = forks + i;
-	}
 	else
-	{
 		philo->lf = forks + i - 1;
-		philo->rf = forks + i;
-	}
 }
 
 int	init_philos(t_philo **philos, int argc, char **argv)
@@ -94,9 +80,13 @@ int	init_philos(t_philo **philos, int argc, char **argv)
 		return (-1);
 	if (pthread_mutex_init(&data->mutex_printf, NULL))
 		return (ft_error("Error: pthread_mutex_print"));
+	if (pthread_mutex_init(&data->time, NULL))
+		return (ft_error("Error: pthread_mutex_print"));
+	if (pthread_mutex_init(&data->m_stop, NULL))
+		return (ft_error("Error: pthread_mutex_print"));
 	if (init_mutex_fork(data) == -1)
 		return (-1);
-	tmp = (t_philo *)malloc(sizeof(t_philo) * data->num_philos);
+	tmp = (t_philo *)malloc(sizeof(t_philo) * (data->num_philos + 1));
 	if (!tmp)
 		return (ft_error("Error: Failed to malloc philos"));
 	i = -1;

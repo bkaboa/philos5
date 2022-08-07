@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: czang <marvin@42.fr>                       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/08/07 12:57:19 by czang             #+#    #+#             */
+/*   Updated: 2022/08/07 19:53:41 by czang            ###   ########lyon.fr   */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef PHILO_H
 # define PHILO_H
 
@@ -19,6 +31,8 @@ typedef struct s_data
 	int				stop;
 	pthread_mutex_t	*mutex_fork;
 	pthread_mutex_t	mutex_printf;
+	pthread_mutex_t	time;
+	pthread_mutex_t	m_stop;
 	long long int	t_start;
 	pthread_t		check_monitor;
 }t_data;
@@ -41,5 +55,6 @@ int			init_philos(t_philo **philos, int argc, char **argv);
 int			ft_error(char *str);
 long long	find_time(void);
 void		upgrade_sleep(long long time, t_data *data);
+int			ft_atoi(const char *str);
 
 #endif

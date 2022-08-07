@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: czang <marvin@42.fr>                       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/08/07 12:57:00 by czang             #+#    #+#             */
+/*   Updated: 2022/08/07 20:01:40 by czang            ###   ########lyon.fr   */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
 void	philo_print(t_philo *philo, char *str)
@@ -26,10 +38,14 @@ void	*start(void *args)
 		philo->t_meal = find_time();
 		pthread_mutex_unlock(philo->rf);
 		pthread_mutex_unlock(philo->lf);
+		pthread_mutex_lock(&philo->data->m_stop);
 		if (!philo->data->stop)
 			philo->num_eat_count += 1;
+		pthread_mutex_unlock(&philo->data->m_stop);
 		philo_print(philo, "is sleeping");
+		//pthread_mutex_lock(&philo->data->time);
 		upgrade_sleep(philo->data->t_sleep, philo->data);
+		//thread_mutex_unlock(&philo->data->time);
 	}
 	return (0);
 }
@@ -38,19 +54,21 @@ void	*check_monitor(void *args)
 {
 	t_philo	*philos;
 	int		i;
+	int		stop;
 	int		flag_all_eat;
 
+	stop = 0;
+	flag_all_eat = 0;
 	philos = (t_philo *)args;
-	while (!philos->data->stop)
+	while (!stop)
 	{
 		i = -1;
-		flag_all_eat = 0;
 		while (++i < philos->data->num_philos)
 		{
 			if (find_time() - (philos + i)->t_meal > philos->data->t_die)
 			{
 				philo_print(philos + i, "died");
-				philos->data->stop = 1;
+				stop = 1;
 				break ;
 			}
 			if (philos->data->num_eat != -1 && \
@@ -58,8 +76,11 @@ void	*check_monitor(void *args)
 				flag_all_eat++;
 		}
 		if (flag_all_eat == philos->data->num_philos)
-			philos->data->stop = 1;
+			break ;
 	}
+	pthread_mutex_lock(&philos->data->m_stop);
+	philos->data->stop = 1;
+	pthread_mutex_unlock(&philos->data->m_stop);
 	return (0);
 }
 
@@ -70,7 +91,7 @@ void	philo_start(t_philo *philos)
 	i = -1;
 	philos->data->t_start = find_time();
 	while (++i < philos->data->num_philos)
-	{	
+	{
 		(philos + i)->t_meal = find_time();
 		if (pthread_create(&(philos + i)->pth_t, NULL, &start, philos + i))
 			ft_error("Error: Failed to create the thread");
@@ -95,7 +116,13 @@ int	main(int argc, char **argv)
 	if (argc < 5 || argc > 6)
 		return (ft_error("Error: Wrong number of arguments"));
 	if (init_philos(&philos, argc, argv) == -1)
+	{
+		if (philos->data)
+			free(philos->data);
+		if (philos)
+			free(philos);
 		return (0);
+	}
 	philo_start(philos);
 	return (0);
 }

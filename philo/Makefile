@@ -1,6 +1,6 @@
 NAME		=	philo
 
-FLAGS		=	-Wall -Wextra -Werror -pthread
+FLAGS		=	-Wall -Wextra -Werror -pthread -fsanitize=thread -g3
 RM_DIR		=	rm -rf
 RM_FILE		=	rm
 INCLUDES	= 	-I .
@@ -8,7 +8,7 @@ INCLUDES	= 	-I .
 HEADER		=	./philo.h
 SRC			=	philo.c \
 				init_philo.c \
-				utily.c
+				utiles.c
 
 OBJ_DIR		=	obj
 OBJ 		=	$(addprefix $(OBJ_DIR)/,$(SRC:.c=.o))
