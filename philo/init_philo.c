@@ -80,9 +80,11 @@ int	init_philos(t_philo **philos, int argc, char **argv)
 		return (-1);
 	if (pthread_mutex_init(&data->mutex_printf, NULL))
 		return (ft_error("Error: pthread_mutex_print"));
-	if (pthread_mutex_init(&data->time, NULL))
+	if (pthread_mutex_init(&data->mutex_time, NULL))
 		return (ft_error("Error: pthread_mutex_print"));
-	if (pthread_mutex_init(&data->m_stop, NULL))
+	if (pthread_mutex_init(&data->mutex_stop, NULL))
+		return (ft_error("Error: pthread_mutex_print"));
+	if (pthread_mutex_init(&data->mutex_eat, NULL))
 		return (ft_error("Error: pthread_mutex_print"));
 	if (init_mutex_fork(data) == -1)
 		return (-1);

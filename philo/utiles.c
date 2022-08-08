@@ -24,48 +24,43 @@ int	ft_error(char *str)
 	return (-1);
 }
 
-void find_time(long long *time)
+long long	find_time(void)
 {
 	struct timeval	t;
 
 	gettimeofday(&t, NULL);
-	*time = (t.tv_sec * 1000) + (t.tv_usec / 1000);
+	return ((t.tv_sec * 1000) + (t.tv_usec / 1000));
 }
 
-long long current_time(void)
+int		check_data_stop(t_philo *philos)
 {
-	long long time;
+	int stop;
 
-	find_time(&time);
-	return (time);
+	stop = 0;
+	pthread_mutex_lock(&philos->data->mutex_stop);
+	if (philos->data->stop)
+		stop = 1;
+	pthread_mutex_unlock(&philos->data->mutex_stop);
+	return (stop);
+}
+
+void philo_stop(t_philo *philos)
+{
+	pthread_mutex_lock(&philos->data->mutex_stop);
+	philos->data->stop = 1;
+	pthread_mutex_unlock(&philos->data->mutex_stop);
 }
 
 void	upgrade_sleep(long long time, t_philo *philo)
 {
 	long long	t;
-	find_time(&t);
+	t = find_time();
 	while (!check_data_stop(philo))
 	{
-		if (current_time() - t >= time)
+		if (find_time() - t >= time)
 			break ;
 		usleep(500);
 	}
-}
-
-int		check_data_stop(t_philo *philos)
-{
-	pthread_mutex_lock(&philos->data->m_stop);
-	if (philos->data->stop)
-		return (1);
-	pthread_mutex_unlock(&philos->data->m_stop);
-	return (0);
-}
-
-void	philo_stop(t_philo *philos)
-{
-	pthread_mutex_lock(&philos->data->m_stop);
-		philos->data->stop = 1;
-	pthread_mutex_unlock(&philos->data->m_stop);
 }
 
 int	ft_atoi(const char *str)
@@ -88,3 +83,56 @@ int	ft_atoi(const char *str)
 		return (-1);
 	return ((int)n);
 }
+
+int	philo_died(t_philo *philo)
+{
+	int		die;
+
+	die = 0;
+	pthread_mutex_lock(&philo->data->mutex_time);
+	if (find_time() - philo->t_meal > philo->data->t_die)
+		die = 1;
+	pthread_mutex_unlock(&philo->data->mutex_time);
+	return (die);
+}
+
+void	get_meal_time(t_philo *philo)
+{
+	pthread_mutex_lock(&philo->data->mutex_time);
+	philo->t_meal = find_time();
+	pthread_mutex_unlock(&philo->data->mutex_time);
+}
+
+void	philo_have_eaten(t_philo *philo)
+{
+	pthread_mutex_lock(&philo->data->mutex_eat);
+	if (!check_data_stop(philo))
+		philo->num_eat_count += 1;
+	pthread_mutex_unlock(&philo->data->mutex_eat);
+}
+
+int philo_have_all_eaten(t_philo *philo)
+{
+	int all_eat;
+
+	all_eat = 0;
+	pthread_mutex_lock(&philo->data->mutex_eat);
+	if (philo->data->num_eat != -1 && \
+		philo->num_eat_count >= philo->data->num_eat)
+		all_eat = 1;
+	pthread_mutex_unlock(&philo->data->mutex_eat);
+	return (all_eat);
+}
+
+//void	destroy_mutex(t_philo *philos)
+//{
+//	int i;
+//
+//	i = -1;
+//	while (++i < philos->data->num_forks)
+//		pthread_mutex_destroy(&philos->data->mutex_fork[i]);
+//	pthread_mutex_destroy(&philos->data->mutex_eat);
+//	pthread_mutex_destroy(&philos->data->mutex_time);
+//	pthread_mutex_destroy(&philos->data->mutex_printf);
+//	pthread_mutex_destroy(&philos->data->mutex_stop);
+//}

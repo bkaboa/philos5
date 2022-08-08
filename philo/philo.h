@@ -31,8 +31,9 @@ typedef struct s_data
 	int				stop;
 	pthread_mutex_t	*mutex_fork;
 	pthread_mutex_t	mutex_printf;
-	pthread_mutex_t	time;
-	pthread_mutex_t	m_stop;
+	pthread_mutex_t	mutex_time;
+	pthread_mutex_t	mutex_stop;
+	pthread_mutex_t mutex_eat;
 	long long int	t_start;
 	pthread_t		check_monitor;
 }t_data;
@@ -53,11 +54,15 @@ int			init_philos(t_philo **philos, int argc, char **argv);
 
 //unity
 int			ft_error(char *str);
-void		find_time(long long *time);
+long long	find_time(void);
 void		upgrade_sleep(long long time, t_philo *philo);
 int			ft_atoi(const char *str);
 int			check_data_stop(t_philo *philos);
 void		philo_stop(t_philo *philos);
-long long	current_time(void);
+int			philo_died(t_philo *philo);
+void		philo_have_eaten(t_philo *philo);
+int			philo_have_all_eaten(t_philo *philo);
+void		get_meal_time(t_philo *philo);
+void		destroy_mutex(t_philo *philos);
 
 #endif
