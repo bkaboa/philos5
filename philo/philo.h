@@ -53,8 +53,11 @@ int			init_philos(t_philo **philos, int argc, char **argv);
 
 //unity
 int			ft_error(char *str);
-long long	find_time(void);
-void		upgrade_sleep(long long time, t_data *data);
+void		find_time(long long *time);
+void		upgrade_sleep(long long time, t_philo *philo);
 int			ft_atoi(const char *str);
+int			check_data_stop(t_philo *philos);
+void		philo_stop(t_philo *philos);
+long long	current_time(void);
 
 #endif

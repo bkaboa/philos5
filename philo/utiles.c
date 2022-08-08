@@ -24,26 +24,48 @@ int	ft_error(char *str)
 	return (-1);
 }
 
-long long	find_time(void)
+void find_time(long long *time)
 {
 	struct timeval	t;
 
 	gettimeofday(&t, NULL);
-	return ((t.tv_sec * 1000) + (t.tv_usec / 1000));
+	*time = (t.tv_sec * 1000) + (t.tv_usec / 1000);
 }
 
-void	upgrade_sleep(long long time, t_data *data)
+long long current_time(void)
+{
+	long long time;
+
+	find_time(&time);
+	return (time);
+}
+
+void	upgrade_sleep(long long time, t_philo *philo)
 {
 	long long	t;
-	t = find_time();
-	while (!data->stop)
+	find_time(&t);
+	while (!check_data_stop(philo))
 	{
-		if (find_time() - t >= time)
+		if (current_time() - t >= time)
 			break ;
-		//pthread_mutex_lock(&data->time);
 		usleep(500);
-		//pthread_mutex_unlock(&data->time);
 	}
+}
+
+int		check_data_stop(t_philo *philos)
+{
+	pthread_mutex_lock(&philos->data->m_stop);
+	if (philos->data->stop)
+		return (1);
+	pthread_mutex_unlock(&philos->data->m_stop);
+	return (0);
+}
+
+void	philo_stop(t_philo *philos)
+{
+	pthread_mutex_lock(&philos->data->m_stop);
+		philos->data->stop = 1;
+	pthread_mutex_unlock(&philos->data->m_stop);
 }
 
 int	ft_atoi(const char *str)

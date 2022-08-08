@@ -14,10 +14,11 @@
 
 void	philo_print(t_philo *philo, char *str)
 {
+	if (!check_data_stop(philo))
+		return ;
 	pthread_mutex_lock(&philo->data->mutex_printf);
-	if (!philo->data->stop)
-		printf("%lld %d %s\n", \
-			find_time() - philo->data->t_start, philo->index, str);
+	printf("%lld %d %s\n", \
+			current_time() - philo->data->t_start, philo->index, str);
 	pthread_mutex_unlock(&philo->data->mutex_printf);
 }
 
@@ -26,27 +27,29 @@ void	*start(void *args)
 	t_philo	*philo;
 
 	philo = (t_philo *)args;
-	while (!philo->data->stop)
+	while (!check_data_stop(philo))
 	{
 		philo_print(philo, "is thinking");
-		pthread_mutex_lock(philo->lf);
-		philo_print(philo, "has taken a fork");
 		pthread_mutex_lock(philo->rf);
 		philo_print(philo, "has taken a fork");
+		pthread_mutex_lock(philo->lf);
+		philo_print(philo, "has taken a fork");
 		philo_print(philo, "is eating");
-		upgrade_sleep(philo->data->t_eat, philo->data);
-		philo->t_meal = find_time();
+		pthread_mutex_lock(&philo->data->time);
+		upgrade_sleep(philo->data->t_eat, philo);
+		pthread_mutex_unlock(&philo->data->time);
+		find_time(&philo->t_meal);
 		pthread_mutex_unlock(philo->rf);
 		pthread_mutex_unlock(philo->lf);
-		pthread_mutex_lock(&philo->data->m_stop);
-		if (!philo->data->stop)
+		if (!check_data_stop(philo))
 			philo->num_eat_count += 1;
-		pthread_mutex_unlock(&philo->data->m_stop);
 		philo_print(philo, "is sleeping");
-		//pthread_mutex_lock(&philo->data->time);
-		upgrade_sleep(philo->data->t_sleep, philo->data);
-		//thread_mutex_unlock(&philo->data->time);
+		pthread_mutex_lock(&philo->data->time);
+		upgrade_sleep(philo->data->t_sleep, philo);
+		pthread_mutex_unlock(&philo->data->time);
 	}
+	pthread_mutex_unlock(philo->lf);
+	pthread_mutex_unlock(philo->rf);
 	return (0);
 }
 
@@ -54,33 +57,30 @@ void	*check_monitor(void *args)
 {
 	t_philo	*philos;
 	int		i;
-	int		stop;
 	int		flag_all_eat;
 
-	stop = 0;
 	flag_all_eat = 0;
 	philos = (t_philo *)args;
-	while (!stop)
+	while (!check_data_stop(philos))
 	{
 		i = -1;
 		while (++i < philos->data->num_philos)
 		{
-			if (find_time() - (philos + i)->t_meal > philos->data->t_die)
+			pthread_mutex_lock(&philos->data->time);
+			if (current_time() - (philos + i)->t_meal > philos->data->t_die)
 			{
 				philo_print(philos + i, "died");
-				stop = 1;
+				philo_stop(philos);
 				break ;
 			}
+			pthread_mutex_unlock(&philos->data->time);
 			if (philos->data->num_eat != -1 && \
 				(philos + i)->num_eat_count >= philos->data->num_eat)
 				flag_all_eat++;
 		}
 		if (flag_all_eat == philos->data->num_philos)
-			break ;
+			philo_stop(philos);
 	}
-	pthread_mutex_lock(&philos->data->m_stop);
-	philos->data->stop = 1;
-	pthread_mutex_unlock(&philos->data->m_stop);
 	return (0);
 }
 
@@ -89,14 +89,14 @@ void	philo_start(t_philo *philos)
 	int	i;
 
 	i = -1;
-	philos->data->t_start = find_time();
+	find_time(&philos->data->t_start);
 	while (++i < philos->data->num_philos)
 	{
-		(philos + i)->t_meal = find_time();
+		find_time(&(philos + i)->t_meal);
 		if (pthread_create(&(philos + i)->pth_t, NULL, &start, philos + i))
 			ft_error("Error: Failed to create the thread");
 		pthread_detach((philos + i)->pth_t);
-		usleep(50);
+		usleep(100);
 	}
 	if (pthread_create(&philos->data->check_monitor, \
 						NULL, &check_monitor, philos))
@@ -107,6 +107,8 @@ void	philo_start(t_philo *philos)
 	while (++i < philos->data->num_forks)
 		pthread_mutex_destroy(&philos->data->mutex_fork[i]);
 	pthread_mutex_destroy(&philos->data->mutex_printf);
+	pthread_mutex_destroy(&philos->data->time);
+	pthread_mutex_destroy(&philos->data->m_stop);
 }
 
 int	main(int argc, char **argv)
