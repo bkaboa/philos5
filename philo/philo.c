@@ -27,18 +27,18 @@ void	*start(void *args)
 
 	philo = (t_philo *)args;
 	if (!(philo->index % 2))
-		upgrade_sleep(10, philo);
+		upgrade_sleep(40, philo);
 	while (!check_data_stop(philo))
 	{
 		philo_print(philo, "is thinking");
-		pthread_mutex_lock(philo->rf);
-		philo_print(philo, "has taken a fork");
 		pthread_mutex_lock(philo->lf);
+		philo_print(philo, "has taken a fork");
+		pthread_mutex_lock(philo->rf);
 		philo_print(philo, "has taken a fork");
 		philo_print(philo, "is eating");
 		upgrade_sleep(philo->data->t_eat, philo);
-		pthread_mutex_unlock(philo->rf);
 		pthread_mutex_unlock(philo->lf);
+		pthread_mutex_unlock(philo->rf);
 		get_meal_time(philo);
 		philo_have_eaten(philo);
 		philo_print(philo, "is sleeping");
@@ -110,5 +110,6 @@ int	main(int argc, char **argv)
 		return (0);
 	}
 	philo_start(philos);
+	destroy_mutex(philos);
 	return (0);
 }

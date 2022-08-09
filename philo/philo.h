@@ -64,5 +64,6 @@ void		philo_have_eaten(t_philo *philo);
 int			philo_have_all_eaten(t_philo *philo);
 void		get_meal_time(t_philo *philo);
 void		destroy_mutex(t_philo *philos);
+void destroy_fork(t_philo *philo);
 
 #endif

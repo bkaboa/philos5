@@ -57,11 +57,11 @@ static void	init_philo(t_philo *philo, int i, \
 	philo->num_eat_count = 0;
 	philo->t_meal = 0;
 	philo->data = data;
-	philo->rf = forks + i;
+	philo->rf = (forks + i);
 	if (i == 0)
-		philo->lf = forks + data->num_philos - 1;
+		philo->lf = (forks + data->num_philos) - 1;
 	else
-		philo->lf = forks + i - 1;
+		philo->lf = (forks + i) - 1;
 }
 
 int	init_philos(t_philo **philos, t_data **data, int argc, char **argv)

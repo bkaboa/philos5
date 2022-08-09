@@ -1,6 +1,6 @@
 NAME		=	philo
 
-FLAGS		=	-Wall -Wextra -Werror -pthread
+FLAGS		=	-Wall -Wextra -Werror -pthread -fsanitize=thread -g3
 RM_DIR		=	rm -rf
 RM_FILE		=	rm
 INCLUDES	= 	-I .

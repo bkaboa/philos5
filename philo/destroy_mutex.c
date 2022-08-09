@@ -14,9 +14,13 @@
 
 void	destroy_mutex(t_philo *philos)
 {
-	int	i;
-
-	i = -1;
+	write(1, "!", 1);
 	pthread_mutex_destroy(&philos->data->mutex_eat);
 	pthread_mutex_destroy(&philos->data->mutex_printf);
+}
+
+void destroy_fork(t_philo *philo)
+{
+	pthread_mutex_unlock(philo->rf);
+	pthread_mutex_destroy(philo->rf);
 }
