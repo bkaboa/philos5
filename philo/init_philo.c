@@ -64,42 +64,29 @@ static void	init_philo(t_philo *philo, int i, \
 		philo->lf = forks + i - 1;
 }
 
-int	init_philos(t_philo **philos, int argc, char **argv)
+int	init_philos(t_philo **philos, t_data **data, int argc, char **argv)
 {
-	t_data	*data;
 	t_philo	*tmp;
 	int		i;
 
-	data = (t_data *)malloc(sizeof(t_data));
+	*data = (t_data *)malloc(sizeof(t_data));
 	if (!data)
 		return (ft_error("Error: Failed to malloc data"));
-	if (init_data(data, argc, argv) == -1)
-	{
-		free(data);
+	if (init_data(*data, argc, argv))
 		return (-1);
-	}
-	if (pthread_mutex_init(&data->mutex_printf, NULL) \
-			|| pthread_mutex_init(&data->mutex_time, NULL) \
-			|| pthread_mutex_init(&data->mutex_stop, NULL) \
-			|| pthread_mutex_init(&data->mutex_eat, NULL))
-	{
-		free(data);
+	if (pthread_mutex_init(&(*data)->mutex_printf, NULL) \
+			|| pthread_mutex_init(&(*data)->mutex_time, NULL) \
+			|| pthread_mutex_init(&(*data)->mutex_stop, NULL) \
+			|| pthread_mutex_init(&(*data)->mutex_eat, NULL))
 		return (ft_error("Error: pthread_mutex_print"));
-	}
-	if (init_mutex_fork(data) == -1)
-	{
-		free(data);
+	if (init_mutex_fork(*data) == -1)
 		return (-1);
-	}
-	tmp = (t_philo *)malloc(sizeof(t_philo) * (data->num_philos + 1));
+	tmp = (t_philo *)malloc(sizeof(t_philo) * ((*data)->num_philos + 1));
 	if (!tmp)
-	{
-		free(data);
 		return (ft_error("Error: Failed to malloc philos"));
-	}
 	i = -1;
-	while (++i < data->num_philos)
-		init_philo(tmp + i, i, data, data->mutex_fork);
+	while (++i < (*data)->num_philos)
+		init_philo(tmp + i, i, *data, (*data)->mutex_fork);
 	*philos = tmp;
 	return (0);
 }

@@ -99,11 +99,15 @@ void	philo_start(t_philo *philos)
 int	main(int argc, char **argv)
 {
 	t_philo	*philos;
+	t_data	*data;
 
 	if (argc < 5 || argc > 6)
 		return (ft_error("Error: Wrong number of arguments"));
-	if (init_philos(&philos, argc, argv) == -1)
+	if (init_philos(&philos, &data, argc, argv) == -1)
+	{
+		free(data);
 		return (0);
+	}
 	philo_start(philos);
 	return (0);
 }

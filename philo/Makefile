@@ -6,9 +6,10 @@ RM_FILE		=	rm
 INCLUDES	= 	-I .
 
 HEADER		=	./philo.h
-SRC			=	philo.c \
+SRC			=	philo.c 	 \
 				init_philo.c \
-				utiles.c
+				utiles.c 	 \
+				utiles2.c
 
 OBJ_DIR		=	obj
 OBJ 		=	$(addprefix $(OBJ_DIR)/,$(SRC:.c=.o))

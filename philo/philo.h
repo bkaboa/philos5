@@ -33,7 +33,7 @@ typedef struct s_data
 	pthread_mutex_t	mutex_printf;
 	pthread_mutex_t	mutex_time;
 	pthread_mutex_t	mutex_stop;
-	pthread_mutex_t mutex_eat;
+	pthread_mutex_t	mutex_eat;
 	long long int	t_start;
 	pthread_t		check_monitor;
 }t_data;
@@ -50,7 +50,7 @@ typedef struct s_philo
 }t_philo;
 
 //init
-int			init_philos(t_philo **philos, int argc, char **argv);
+int			init_philos(t_philo **philos, t_data **data, int argc, char **argv);
 
 //unity
 int			ft_error(char *str);
