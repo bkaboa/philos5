@@ -6,7 +6,7 @@
 /*   By: czang <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/07 12:57:00 by czang             #+#    #+#             */
-/*   Updated: 2022/08/07 20:01:40 by czang            ###   ########lyon.fr   */
+/*   Updated: 2022/08/09 13:29:50 by czang            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@ void	*start(void *args)
 	t_philo	*philo;
 
 	philo = (t_philo *)args;
+	if (!(philo->index % 2))
+		upgrade_sleep(100, philo);
 	while (!check_data_stop(philo))
 	{
 		philo_print(philo, "is thinking");
@@ -92,7 +94,6 @@ void	philo_start(t_philo *philos)
 		ft_error("Error: Failed to create the thread");
 	if (pthread_join(philos->data->check_monitor, NULL))
 		ft_error("Error: Failed to join the thread");
-	//destroy_mutex(philos);
 }
 
 int	main(int argc, char **argv)
@@ -102,13 +103,7 @@ int	main(int argc, char **argv)
 	if (argc < 5 || argc > 6)
 		return (ft_error("Error: Wrong number of arguments"));
 	if (init_philos(&philos, argc, argv) == -1)
-	{
-		if (philos->data)
-			free(philos->data);
-		if (philos)
-			free(philos);
 		return (0);
-	}
 	philo_start(philos);
 	return (0);
 }

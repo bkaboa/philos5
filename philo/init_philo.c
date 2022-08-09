@@ -6,36 +6,30 @@
 /*   By: czang <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/07 12:56:49 by czang             #+#    #+#             */
-/*   Updated: 2022/08/07 19:53:42 by czang            ###   ########lyon.fr   */
+/*   Updated: 2022/08/09 01:00:28 by czang            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-static int	init_data(t_data **data, int argc, char **argv)
+static int	init_data(t_data *data, int argc, char **argv)
 {
-	t_data	*tmp;
-
-	tmp = (t_data *)malloc(sizeof(t_data));
-	if (!tmp)
-		return (ft_error("Error: Failed to malloc data"));
-	tmp->num_philos = ft_atoi(argv[1]);
-	tmp->num_forks = tmp->num_philos;
-	tmp->t_die = ft_atoi(argv[2]);
-	tmp->t_eat = ft_atoi(argv[3]);
-	tmp->t_sleep = ft_atoi(argv[4]);
-	if (tmp->num_philos < 1 || tmp->num_philos > 200 || tmp->t_die == -1 || \
-		tmp->t_eat == -1 || tmp->t_sleep == -1)
+	data->num_philos = ft_atoi(argv[1]);
+	data->num_forks = data->num_philos;
+	data->t_die = ft_atoi(argv[2]);
+	data->t_eat = ft_atoi(argv[3]);
+	data->t_sleep = ft_atoi(argv[4]);
+	if (data->num_philos < 1 || data->num_philos > 200 || \
+			data->t_die == -1 || data->t_eat == -1 || data->t_sleep == -1)
 		return (ft_error("Error: Wrong arguments"));
-	tmp->num_eat = -1;
+	data->num_eat = -1;
 	if (argc == 6)
 	{
-		tmp->num_eat = ft_atoi(argv[5]);
-		if (tmp->num_eat == -1)
+		data->num_eat = ft_atoi(argv[5]);
+		if (data->num_eat == -1)
 			return (ft_error("Error: Wrong arguments"));
 	}
-	tmp->stop = 0;
-	*data = tmp;
+	data->stop = 0;
 	return (0);
 }
 
@@ -76,21 +70,33 @@ int	init_philos(t_philo **philos, int argc, char **argv)
 	t_philo	*tmp;
 	int		i;
 
-	if (init_data(&data, argc, argv) == -1)
+	data = (t_data *)malloc(sizeof(t_data));
+	if (!data)
+		return (ft_error("Error: Failed to malloc data"));
+	if (init_data(data, argc, argv) == -1)
+	{
+		free(data);
 		return (-1);
-	if (pthread_mutex_init(&data->mutex_printf, NULL))
+	}
+	if (pthread_mutex_init(&data->mutex_printf, NULL) \
+			|| pthread_mutex_init(&data->mutex_time, NULL) \
+			|| pthread_mutex_init(&data->mutex_stop, NULL) \
+			|| pthread_mutex_init(&data->mutex_eat, NULL))
+	{
+		free(data);
 		return (ft_error("Error: pthread_mutex_print"));
-	if (pthread_mutex_init(&data->mutex_time, NULL))
-		return (ft_error("Error: pthread_mutex_print"));
-	if (pthread_mutex_init(&data->mutex_stop, NULL))
-		return (ft_error("Error: pthread_mutex_print"));
-	if (pthread_mutex_init(&data->mutex_eat, NULL))
-		return (ft_error("Error: pthread_mutex_print"));
+	}
 	if (init_mutex_fork(data) == -1)
+	{
+		free(data);
 		return (-1);
+	}
 	tmp = (t_philo *)malloc(sizeof(t_philo) * (data->num_philos + 1));
 	if (!tmp)
+	{
+		free(data);
 		return (ft_error("Error: Failed to malloc philos"));
+	}
 	i = -1;
 	while (++i < data->num_philos)
 		init_philo(tmp + i, i, data, data->mutex_fork);
