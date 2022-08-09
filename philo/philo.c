@@ -6,7 +6,7 @@
 /*   By: czang <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/07 12:57:00 by czang             #+#    #+#             */
-/*   Updated: 2022/08/09 13:29:50 by czang            ###   ########lyon.fr   */
+/*   Updated: 2022/08/09 14:41:16 by czang            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ void	*start(void *args)
 
 	philo = (t_philo *)args;
 	if (!(philo->index % 2))
-		upgrade_sleep(100, philo);
+		upgrade_sleep(10, philo);
 	while (!check_data_stop(philo))
 	{
 		philo_print(philo, "is thinking");
@@ -90,10 +90,11 @@ void	philo_start(t_philo *philos)
 		usleep(300);
 	}
 	if (pthread_create(&philos->data->check_monitor, \
-						NULL, &check_monitor, philos))
+				NULL, &check_monitor, philos))
 		ft_error("Error: Failed to create the thread");
 	if (pthread_join(philos->data->check_monitor, NULL))
 		ft_error("Error: Failed to join the thread");
+	destroy_mutex(philos);
 }
 
 int	main(int argc, char **argv)

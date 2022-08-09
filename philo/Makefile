@@ -7,6 +7,7 @@ INCLUDES	= 	-I .
 
 HEADER		=	./philo.h
 SRC			=	philo.c 	 \
+				destroy_mutex.c \
 				init_philo.c \
 				utiles.c 	 \
 				utiles2.c

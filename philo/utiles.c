@@ -6,7 +6,7 @@
 /*   By: czang <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/07 12:57:28 by czang             #+#    #+#             */
-/*   Updated: 2022/08/09 00:45:51 by czang            ###   ########lyon.fr   */
+/*   Updated: 2022/08/09 14:41:13 by czang            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,16 +63,3 @@ void	upgrade_sleep(long long time, t_philo *philo)
 		usleep(500);
 	}
 }
-
-//void	destroy_mutex(t_philo *philos)
-//{
-//	int i;
-//
-//	i = -1;
-//	while (++i < philos->data->num_forks)
-//		pthread_mutex_destroy(&philos->data->mutex_fork[i]);
-//	pthread_mutex_destroy(&philos->data->mutex_eat);
-//	pthread_mutex_destroy(&philos->data->mutex_time);
-//	pthread_mutex_destroy(&philos->data->mutex_printf);
-//	pthread_mutex_destroy(&philos->data->mutex_stop);
-//}
